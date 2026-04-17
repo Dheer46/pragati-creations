@@ -1,133 +1,280 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { ArrowRight, Star } from "lucide-react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { ArrowRight, Star, Sparkles, Gem, Hand } from "lucide-react";
 import Link from "next/link";
+import { useRef } from "react";
 import { Button } from "@/components/ui/Button";
-import { cn } from "@/lib/utils";
+import { products } from "@/data/products";
+
+/* ── helpers ── */
+const fadeUp = {
+  hidden: { opacity: 0, y: 40 },
+  visible: (i = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.8, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] },
+  }),
+};
 
 export default function Home() {
+  const heroRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+
+  const bestSellers = products.filter((p) => p.isBestSeller).slice(0, 4);
+
   const categories = [
-    { name: "Signature Clocks", image: "https://images.unsplash.com/photo-1563861826100-9cb868fdbe1c?w=800&q=80" },
-    { name: "Serving Trays", image: "https://images.unsplash.com/photo-1590794056226-79ef3a8147e1?w=800&q=80" },
-    { name: "Name Plates", image: "https://images.unsplash.com/photo-1525264251213-9799292ca3b5?w=800&q=80" },
-    { name: "Candle Stands", image: "https://images.unsplash.com/photo-1601614217157-550346d03d07?w=800&q=80" }
+    {
+      name: "Signature Clocks",
+      tag: "Functional Art",
+      image: "/images/aesthetic_clock.png",
+      span: "md:col-span-2 md:row-span-2",
+    },
+    {
+      name: "Serving Trays",
+      tag: "Table Luxury",
+      image: "/images/serving_tray.png",
+      span: "",
+    },
+    {
+      name: "Name Plates",
+      tag: "Welcome Home",
+      image: "/images/name_plate.png",
+      span: "",
+    },
+    {
+      name: "Candle Stands",
+      tag: "Warm Glow",
+      image: "/images/candle_stand.png",
+      span: "md:col-span-2",
+    },
+  ];
+
+  const timeline = [
+    { icon: Sparkles, title: "Inspiration", text: "Each piece begins as a quiet spark — an idea born from nature, geometry, and the sacred patience of a mother's vision." },
+    { icon: Hand, title: "Craft", text: "Hours of meticulous hand-dotting, layered brushwork, and resin-pouring transform raw materials into living art." },
+    { icon: Gem, title: "Finish", text: "A premium high-gloss seal preserves every detail, ensuring your piece radiates brilliance for years to come." },
   ];
 
   return (
-    <div className="flex flex-col relative w-full pt-16 md:pt-20 bg-background">
-      
-      {/* Hero Section - 50/50 Split Balanced Style */}
-      <section className="relative min-h-[85vh] flex items-center overflow-hidden w-full px-6 py-4 md:py-8">
-        <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
-          
-          {/* Text Content (Left) */}
-          <motion.div 
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1, ease: "easeOut" }}
-            className="flex flex-col max-w-2xl z-10 space-y-10 md:space-y-12"
+    <div className="flex flex-col relative w-full bg-background overflow-hidden">
+
+      {/* ═══════════════════════════════════════
+          SECTION 1 ─ FULL-BLEED CINEMATIC HERO
+          ═══════════════════════════════════════ */}
+      <section ref={heroRef} className="relative h-[100svh] w-full flex items-center justify-center overflow-hidden">
+        {/* BG Image with Parallax */}
+        <motion.div style={{ scale: heroScale }} className="absolute inset-0 z-0">
+          <img
+            src="/images/mandala_mirror.png"
+            alt="Premium Artisan Decor"
+            className="w-full h-full object-cover"
+          />
+        </motion.div>
+
+        {/* Overlay Gradient */}
+        <div className="absolute inset-0 z-[1] bg-gradient-to-b from-black/50 via-black/30 to-black/70" />
+
+        {/* Floating Accent Ring */}
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+          className="absolute w-[600px] h-[600px] rounded-full border border-dashed border-white/10 z-[2] pointer-events-none hidden md:block"
+        />
+
+        {/* Content */}
+        <motion.div
+          style={{ opacity: heroOpacity }}
+          className="relative z-10 text-center max-w-3xl px-6 flex flex-col items-center gap-8"
+        >
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={0}
+            className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md text-white/90 px-5 py-2 rounded-full text-[10px] md:text-xs font-bold tracking-[0.25em] uppercase border border-white/15"
           >
-            <div className="inline-flex items-center gap-2 bg-gold/10 text-gold px-4 py-1.5 rounded-full text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase w-fit border border-gold/20 backdrop-blur-sm">
-              <Star size={12} className="fill-gold" />
-              <span>Artisan Excellence • Unique Handcraft</span>
-            </div>
-            
-            <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-medium text-foreground leading-[1.05] tracking-tight">
-              Artfully <span className="italic text-gold italic-glow">Crafted</span> to Enhance Your Home
-            </h1>
-            
-            <p className="text-foreground/70 font-sans text-lg md:text-xl text-balance leading-relaxed max-w-lg font-light">
-              Discover exclusive, soulful mandala and decor pieces designed with patience and a mother's touch, rejecting mass production for true artisanal beauty.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row items-center gap-8 pt-4">
-              <Link href="/shop" className="w-full sm:w-auto">
-                <Button size="lg" className="h-14 w-full sm:w-[240px] bg-foreground text-background hover:bg-foreground/90 transition-all duration-500 tracking-[0.2em] font-bold">
-                  Shop Collection
-                </Button>
-              </Link>
-              <Link href="/about" className="group flex items-center gap-3 text-xs md:text-sm uppercase tracking-[0.3em] font-bold text-foreground/50 hover:text-gold transition-colors">
-                Our Studio Story 
-                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </div>
+            <Star size={12} className="fill-gold text-gold" />
+            <span>Artisan Excellence • Unique Handcraft</span>
           </motion.div>
 
-          {/* Image Content (Right) */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.4, delay: 0.2, ease: "easeOut" }}
-            className="relative w-full h-[500px] md:h-[650px] lg:h-[750px] rounded-[3rem] overflow-hidden shadow-2xl border border-foreground/5 bg-foreground/5"
+          <motion.h1
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={1}
+            className="font-serif text-5xl md:text-7xl lg:text-[5.5rem] font-medium text-white leading-[1.05] tracking-tight"
           >
-            <img 
-              src="https://images.unsplash.com/photo-1616486029423-aaa4789e8c9a?w=1200&q=80" 
-              alt="Premium Artisan Decor" 
-              className="w-full h-full object-cover object-center hover:scale-105 transition-transform duration-[4000ms]"
-            />
-            <div className="absolute inset-x-0 bottom-0 p-12 bg-gradient-to-t from-background/60 to-transparent backdrop-blur-[2px]">
-              <p className="text-foreground/80 font-serif italic text-2xl">The 2024 Signature Series</p>
-            </div>
+            Where Every Piece Tells a{" "}
+            <span className="italic text-gold drop-shadow-[0_0_30px_rgba(182,141,64,0.35)]">
+              Story
+            </span>
+          </motion.h1>
+
+          <motion.p
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={2}
+            className="text-white/70 font-sans text-lg md:text-xl leading-relaxed font-light max-w-xl"
+          >
+            Discover soulful mandala and decor pieces — each one patient, handcrafted, and utterly unique.
+          </motion.p>
+
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={3}
+            className="flex flex-col sm:flex-row items-center gap-5 pt-2"
+          >
+            <Link href="/shop">
+              <Button
+                size="lg"
+                className="h-14 px-10 bg-gold hover:bg-gold/90 text-white tracking-[0.2em] font-bold transition-all duration-500 shadow-[0_4px_40px_rgba(182,141,64,0.35)] hover:shadow-[0_4px_60px_rgba(182,141,64,0.5)]"
+              >
+                Explore Collection
+              </Button>
+            </Link>
+            <Link
+              href="/about"
+              className="group flex items-center gap-3 text-xs uppercase tracking-[0.3em] font-bold text-white/50 hover:text-gold transition-colors"
+            >
+              Our Studio Story
+              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+            </Link>
           </motion.div>
+        </motion.div>
+
+        {/* Scroll Indicator */}
+        <motion.div
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2"
+        >
+          <span className="text-white/30 text-[9px] uppercase tracking-[0.3em] font-bold">Scroll</span>
+          <div className="w-px h-8 bg-gradient-to-b from-white/40 to-transparent" />
+        </motion.div>
+      </section>
+
+      {/* ═══════════════════════════════════════
+          SECTION 2 ─ BEST SELLERS HORIZONTAL
+          ═══════════════════════════════════════ */}
+      <section className="py-24 md:py-32 px-6">
+        <div className="container mx-auto">
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6"
+          >
+            <div>
+              <span className="text-gold font-serif italic text-2xl block mb-3">Best Sellers</span>
+              <h2 className="text-4xl md:text-5xl font-serif text-foreground leading-tight tracking-tight">
+                Most <span className="italic opacity-40">Loved</span> Pieces
+              </h2>
+            </div>
+            <Link
+              href="/shop"
+              className="group flex items-center gap-4 text-xs uppercase tracking-[0.3em] font-bold text-foreground/50 hover:text-gold transition-colors shrink-0"
+            >
+              View All
+              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </motion.div>
+
+          {/* Horizontal Scroll Container */}
+          <div className="flex gap-6 md:gap-8 overflow-x-auto pb-6 -mx-6 px-6 snap-x snap-mandatory scrollbar-hide"
+            style={{ scrollbarWidth: "none" }}
+          >
+            {bestSellers.map((product, idx) => (
+              <motion.div
+                key={product.id}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                custom={idx}
+                className="min-w-[280px] md:min-w-[340px] snap-start group"
+              >
+                <Link href={`/product/${product.id}`} className="block">
+                  <div className="relative aspect-[3/4] rounded-3xl overflow-hidden bg-foreground/[0.03] border border-foreground/5 shadow-lg transition-all duration-500 group-hover:shadow-2xl group-hover:border-gold/20">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-110"
+                    />
+                    <div className="absolute top-4 left-4">
+                      <span className="bg-foreground/80 text-background text-[9px] font-bold tracking-[0.15em] uppercase px-3 py-1.5 rounded-full backdrop-blur-sm">
+                        {product.category}
+                      </span>
+                    </div>
+                    <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/60 via-black/20 to-transparent">
+                      <p className="text-white font-serif text-lg">{product.name}</p>
+                      <p className="text-gold font-bold text-sm mt-1">₹{product.price.toLocaleString("en-IN")}</p>
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Marquee Ticker */}
-      <div className="w-full py-10 md:py-14 bg-foreground/[0.02] border-y border-foreground/5 overflow-hidden backdrop-blur-sm relative z-20">
-        <div className="whitespace-nowrap animate-marquee flex items-center gap-12 text-[10px] md:text-xs font-bold tracking-[0.4em] uppercase text-gold">
-          {Array(8).fill("").map((_, i) => (
-            <span key={i} className="flex items-center gap-8">
-              <span>Hand-Drawn Mandala</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-gold/40" />
-              <span>Mother's Craftmanship</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-gold/40" />
-              <span>Sustainable Art</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-gold/40" />
-              <span>Unique Home Decor</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-gold/40" />
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* Featured Collections Section - Standard 4-Column Grid */}
-      <section className="py-24 md:py-32 px-6">
+      {/* ═══════════════════════════════════════
+          SECTION 3 ─ BENTO GRID COLLECTIONS
+          ═══════════════════════════════════════ */}
+      <section className="py-24 md:py-32 px-6 bg-foreground/[0.02] border-y border-foreground/5">
         <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
-            <div className="max-w-xl">
-              <span className="text-gold font-serif italic text-2xl md:text-3xl block mb-4">Curated Essences</span>
-              <h2 className="text-4xl md:text-6xl font-serif text-foreground leading-tight tracking-tight">Explore Our <span className="opacity-40 italic">Collections</span></h2>
-            </div>
-            <Link href="/shop" className="group flex items-center gap-4 text-xs uppercase tracking-[0.3em] font-bold text-foreground/50 hover:text-gold transition-colors">
-              View All Series
-              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="text-center max-w-2xl mx-auto mb-16"
+          >
+            <span className="text-gold font-serif italic text-2xl block mb-3">Curated Worlds</span>
+            <h2 className="text-4xl md:text-6xl font-serif text-foreground leading-tight tracking-tight">
+              Browse by <span className="italic opacity-40">Collection</span>
+            </h2>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
-            {categories.map((category, idx) => (
+          {/* Bento Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-4 auto-rows-[260px] gap-5">
+            {categories.map((cat, idx) => (
               <motion.div
-                key={category.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                key={cat.name}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
                 viewport={{ once: true }}
-                transition={{ delay: idx * 0.1 }}
-                className="relative group overflow-hidden"
+                custom={idx}
+                className={`relative group rounded-[2rem] overflow-hidden cursor-pointer ${cat.span}`}
               >
-                <div className="relative aspect-[4/5] rounded-[2.5rem] overflow-hidden bg-foreground/[0.03] border border-foreground/5 shadow-xl transition-all duration-500 group-hover:shadow-2xl">
-                  <img src={category.image} alt={category.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent flex flex-col justify-end p-8">
-                    <Link href={`/shop?category=${category.name.toLowerCase()}`}>
-                      <Button variant="outline" className="w-full text-[10px] uppercase tracking-widest border-foreground/10 hover:border-gold hover:text-gold bg-background/20 backdrop-blur-sm transition-all duration-500">
-                        Explore
-                      </Button>
-                    </Link>
-                  </div>
+                <Link href={`/shop?category=${cat.name.toLowerCase()}`} className="absolute inset-0 z-20" />
+                <img
+                  src={cat.image}
+                  alt={cat.name}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1500ms] group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent z-10 transition-all duration-500 group-hover:from-black/80" />
+                <div className="absolute bottom-0 left-0 right-0 z-10 p-8 flex flex-col gap-1">
+                  <span className="text-gold/80 text-[10px] font-bold tracking-[0.25em] uppercase">
+                    {cat.tag}
+                  </span>
+                  <h3 className="text-white text-2xl md:text-3xl font-serif group-hover:text-gold transition-colors duration-500">
+                    {cat.name}
+                  </h3>
                 </div>
-                <div className="pt-8 space-y-2 text-center md:text-left">
-                  <span className="text-gold/60 text-[10px] font-bold tracking-[0.2em] uppercase">Series 0{idx + 1}</span>
-                  <h3 className="text-2xl font-serif text-foreground group-hover:text-gold transition-colors duration-500">{category.name}</h3>
+                {/* hover corner arrow */}
+                <div className="absolute top-6 right-6 z-10 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 border border-white/20">
+                  <ArrowRight size={16} className="text-white" />
                 </div>
               </motion.div>
             ))}
@@ -135,42 +282,144 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Narrative Section - Lighter Split View */}
-      <section className="relative w-full py-24 md:py-32 bg-gold/5 border-y border-gold/10">
-        <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
-          <motion.div 
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
+      {/* ═══════════════════════════════════════
+          SECTION 4 ─ CRAFTSMANSHIP TIMELINE
+          ═══════════════════════════════════════ */}
+      <section className="py-28 md:py-36 px-6 relative overflow-hidden">
+        {/* Decorative circle */}
+        <div className="absolute -right-40 top-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full border border-gold/10 pointer-events-none hidden lg:block" />
+
+        <div className="container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+          {/* Left ─ Text + Timeline */}
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
             viewport={{ once: true }}
-            className="space-y-10"
+            className="space-y-12"
           >
-            <span className="text-gold font-serif italic text-3xl">Patience & Soul.</span>
-            <h2 className="text-4xl md:text-6xl font-serif text-foreground leading-tight">Art That Breathes New <span className="italic text-gold opacity-90">Life</span> into Your Sanctuary</h2>
-            <p className="text-foreground/70 font-sans text-lg md:text-xl font-light leading-relaxed max-w-lg">
-              In a world of fast-paced production, we choose the rhythmic path of patient creation. Every stroke is a meditation for your space.
-            </p>
-            <div className="flex items-center gap-12 pt-6">
-              <div className="flex flex-col gap-2">
-                <span className="text-3xl md:text-4xl font-serif text-gold">100%</span>
-                <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-foreground/30">Handmade Integrity</span>
+            <div className="space-y-6">
+              <span className="text-gold font-serif italic text-3xl">Our Process</span>
+              <h2 className="text-4xl md:text-5xl font-serif text-foreground leading-tight">
+                Patience <span className="italic text-gold">&</span> Soul in Every Detail
+              </h2>
+            </div>
+
+            {/* Vertical Timeline */}
+            <div className="relative pl-10 border-l-2 border-gold/20 space-y-12">
+              {timeline.map((step, idx) => {
+                const Icon = step.icon;
+                return (
+                  <motion.div
+                    key={step.title}
+                    variants={fadeUp}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    custom={idx}
+                    className="relative"
+                  >
+                    {/* Dot */}
+                    <div className="absolute -left-[calc(1.25rem+5px)] top-0 w-10 h-10 rounded-full bg-gold/10 border-2 border-gold/40 flex items-center justify-center">
+                      <Icon size={16} className="text-gold" />
+                    </div>
+                    <h3 className="text-lg font-serif text-foreground mb-2">{step.title}</h3>
+                    <p className="text-foreground/60 font-light leading-relaxed text-sm max-w-md">{step.text}</p>
+                  </motion.div>
+                );
+              })}
+            </div>
+
+            {/* Stats row */}
+            <div className="flex items-center gap-12 pt-4">
+              <div className="flex flex-col gap-1">
+                <span className="text-3xl font-serif text-gold">100%</span>
+                <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-foreground/30">Handmade</span>
               </div>
-              <div className="w-px h-16 bg-foreground/10" />
-              <div className="flex flex-col gap-2">
-                <span className="text-3xl md:text-4xl font-serif text-gold">Authentic</span>
-                <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-foreground/30">Artisan Craft</span>
+              <div className="w-px h-14 bg-foreground/10" />
+              <div className="flex flex-col gap-1">
+                <span className="text-3xl font-serif text-gold">500+</span>
+                <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-foreground/30">Happy Homes</span>
+              </div>
+              <div className="w-px h-14 bg-foreground/10" />
+              <div className="flex flex-col gap-1">
+                <span className="text-3xl font-serif text-gold">Eco</span>
+                <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-foreground/30">Sustainable</span>
               </div>
             </div>
           </motion.div>
-          
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+
+          {/* Right ─ Stacked Images */}
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
             viewport={{ once: true }}
-            className="rounded-[3rem] overflow-hidden shadow-2xl h-[500px] md:h-[600px] border border-gold/10"
+            custom={2}
+            className="relative h-[550px] md:h-[650px]"
           >
-            <img src="https://images.unsplash.com/photo-1549490349-8643362247b5?w=1200&q=80" alt="Process" className="w-full h-full object-cover transition-transform duration-700 hover:scale-105" />
+            <div className="absolute top-0 right-0 w-[75%] h-[65%] rounded-[2.5rem] overflow-hidden shadow-2xl border border-foreground/5 z-10">
+              <img
+                src="/images/sunburst_mirror.png"
+                alt="Artisan Process"
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-[3000ms]"
+              />
+            </div>
+            <div className="absolute bottom-0 left-0 w-[65%] h-[55%] rounded-[2.5rem] overflow-hidden shadow-2xl border border-gold/10 z-20">
+              <img
+                src="/images/golden_lotus.png"
+                alt="Golden Lotus Mandala"
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-[3000ms]"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+              <div className="absolute bottom-6 left-6 right-6">
+                <p className="text-gold text-[10px] font-bold tracking-[0.2em] uppercase">Featured</p>
+                <p className="text-white font-serif text-lg">Golden Lotus Mandala</p>
+              </div>
+            </div>
           </motion.div>
         </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
+          SECTION 5 ─ CTA BANNER
+          ═══════════════════════════════════════ */}
+      <section className="relative py-28 md:py-36 overflow-hidden">
+        {/* Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-gold/10 via-transparent to-gold/5 border-y border-gold/10" />
+
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="relative container mx-auto px-6 text-center flex flex-col items-center gap-8 max-w-2xl"
+        >
+          <span className="text-gold font-serif italic text-2xl">Made for You</span>
+          <h2 className="text-4xl md:text-5xl font-serif text-foreground leading-tight">
+            Have Something Special in Mind?
+          </h2>
+          <p className="text-foreground/60 font-light text-lg leading-relaxed max-w-lg">
+            We bring your imaginative concepts to life. From custom mandalas to personalized name plates, every commission is a bespoke creation.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center gap-5">
+            <Link href="/contact">
+              <Button
+                size="lg"
+                className="h-14 px-10 bg-foreground text-background hover:bg-foreground/90 tracking-[0.2em] font-bold transition-all duration-500"
+              >
+                Request Custom Order
+              </Button>
+            </Link>
+            <Link
+              href="/shop"
+              className="group flex items-center gap-3 text-xs uppercase tracking-[0.3em] font-bold text-foreground/50 hover:text-gold transition-colors"
+            >
+              Browse Ready Pieces
+              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+        </motion.div>
       </section>
     </div>
   );
