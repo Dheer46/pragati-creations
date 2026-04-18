@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
-import { saveOrderToSheet } from "@/lib/googleSheets";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { saveOrderToSupabase } from "@/lib/supabaseOrders";
 import { sendOrderConfirmation } from "@/lib/sendEmail";
 
 export async function POST(req) {
   try {
     const { formData, cart, amount } = await req.json();
+    const session = await getServerSession(authOptions);
 
     if (!formData || !cart || !amount) {
-
       return NextResponse.json({ error: "Missing required order data" }, { status: 400 });
     }
 
@@ -21,8 +23,8 @@ export async function POST(req) {
       amount
     };
 
-    // Save to Google Sheets in the background (or wait for it)
-    await saveOrderToSheet(orderData, "COD");
+    // Save to Supabase with session email if available
+    await saveOrderToSupabase(orderData, "COD", session?.user?.email);
 
     // Send email to customer
     await sendOrderConfirmation(orderData);

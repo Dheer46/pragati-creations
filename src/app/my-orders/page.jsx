@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
-import { getOrdersByEmail } from "@/lib/googleSheets";
+import { getOrdersByEmail } from "@/lib/supabaseOrders";
 import { Package, Calendar, Tag, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
@@ -13,7 +13,9 @@ export default async function MyOrdersPage() {
     redirect("/login");
   }
 
-  const orders = await getOrdersByEmail(session.user.email);
+  const email = session.user.email;
+  
+  const orders = await getOrdersByEmail(email);
 
   return (
     <div className="min-h-screen bg-background pt-32 pb-24">

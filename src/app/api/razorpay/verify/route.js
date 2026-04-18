@@ -1,6 +1,8 @@
 import crypto from "crypto";
 import { NextResponse } from "next/server";
-import { saveOrderToSheet } from "@/lib/googleSheets";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { saveOrderToSupabase } from "@/lib/supabaseOrders";
 import { sendOrderConfirmation } from "@/lib/sendEmail";
 
 export async function POST(req) {
@@ -13,6 +15,8 @@ export async function POST(req) {
       cart,
       amount
     } = await req.json();
+
+    const session = await getServerSession(authOptions);
 
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
       return NextResponse.json({ error: "Missing payment details" }, { status: 400 });
@@ -28,7 +32,7 @@ export async function POST(req) {
     const isAuthentic = expectedSignature === razorpay_signature;
 
     if (isAuthentic) {
-      // Payment verified, save to Google Sheets
+      // Payment verified, save to Supabase
       if (formData && cart) {
         const orderData = {
           orderId: razorpay_payment_id, // We use payment_id as the final receipt ID
@@ -36,7 +40,7 @@ export async function POST(req) {
           cart,
           amount
         };
-        await saveOrderToSheet(orderData, "Online");
+        await saveOrderToSupabase(orderData, "Online", session?.user?.email);
         await sendOrderConfirmation(orderData);
       }
 
