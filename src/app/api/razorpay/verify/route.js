@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { saveOrderToSupabase } from "@/lib/supabaseOrders";
 import { sendOrderConfirmation } from "@/lib/sendEmail";
+import { clearUserCart } from "@/lib/supabaseCart";
 
 export async function POST(req) {
   try {
@@ -41,6 +42,12 @@ export async function POST(req) {
           amount
         };
         await saveOrderToSupabase(orderData, "Online", session?.user?.email);
+        
+        // Clear the persistent cart if user is logged in
+        if (session?.user?.email) {
+          await clearUserCart(session.user.email);
+        }
+
         await sendOrderConfirmation(orderData);
       }
 

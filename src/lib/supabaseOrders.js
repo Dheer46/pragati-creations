@@ -67,3 +67,44 @@ export async function getOrdersByEmail(email) {
     return [];
   }
 }
+
+/**
+ * Admin: Fetch all orders for the dashboard
+ */
+export async function getAllOrders() {
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    return data.map(order => ({
+      ...order,
+      formattedDate: new Date(order.created_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+      displayAmount: `₹${order.amount}`
+    }));
+  } catch (error) {
+    console.error("Supabase Admin Fetch Error:", error);
+    return [];
+  }
+}
+
+/**
+ * Admin: Update order status
+ */
+export async function updateOrderStatus(orderId, newStatus) {
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .update({ status: newStatus })
+      .eq('order_id', orderId);
+
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error("Supabase Status Update Error:", error);
+    return false;
+  }
+}
